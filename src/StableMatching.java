@@ -26,7 +26,7 @@ public class StableMatching {
             aptitude(numberOfStudents, charge, population);
             print(population, numberOfStudents + 1, "Aptidao: ");
 
-            int best = getBest(population, intermediary, charge, numberOfStudents);
+            int best = getBest(population, intermediary, numberOfStudents);
             print(population, numberOfStudents + 1, "Eletismo: ");
 
             if (foundSolution(best, population, numberOfStudents)) break;
@@ -105,7 +105,7 @@ public class StableMatching {
         }
     }
 
-    private int getBest(int[][] population, int[][] intermediary, List<int[]> charge, int numberOfStudents) {
+    private int getBest(int[][] population, int[][] intermediary, int numberOfStudents) {
         int min = population[0][numberOfStudents];
         int best = 0;
 
