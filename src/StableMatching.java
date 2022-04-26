@@ -1,36 +1,38 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class StableMatching {
-    private final int POPULATION_SIZE = 11;
-    private final int MUTATION_PERCENTAGE = 5;
-    private final int MUTATION_AMOUNT = 3;
+    private final int POPULATION_SIZE = 19;
+    private final int MUTATION_PERCENTAGE = 1;
+    private final int MUTATION_AMOUNT = 10;
 
     /**
      * Executa a logica inteira do algoritmo genetico
      */
     public void execute() {
-        List<String> file = readFile("./src/carga.txt");
+        List<String> file = readFile("./src/pares10.txt");
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
         int[][] population = generatePopulation(numberOfStudents);
         int[][] intermediary = new int[POPULATION_SIZE][numberOfStudents + 1];
 
-        for (int g = 0; g < 1; g++) {
+        for (int g = 0; g < 4; g++) {
+            System.out.println("=============================================================================");
             System.out.println("Geracao:" + g);
 
             print(population, numberOfStudents + 1, "Inicio: ");
 
             aptitude(population, charge, numberOfStudents);
-            print(population, numberOfStudents + 1, "Aptidao: ");
+//            print(population, numberOfStudents + 1, "Aptidao: ");
 
             int best = getBest(population, intermediary, numberOfStudents);
-            print(population, numberOfStudents + 1, "Eletismo: ");
+//            print(population, numberOfStudents + 1, "Eletismo: ");
 
             if (foundSolution(best, population, numberOfStudents)) break;
 
@@ -39,7 +41,10 @@ public class StableMatching {
 
             if (getNextInt(MUTATION_PERCENTAGE) == 0) {
                 mutation(population, numberOfStudents);
+//                print(population, numberOfStudents + 1, "Mutacao: ");
             }
+            System.out.println("=============================================================================");
+            System.out.println("\n\n\n");
         }
     }
 
@@ -92,8 +97,14 @@ public class StableMatching {
         int[][] population = new int[POPULATION_SIZE][numberOfStudents + 1];
 
         for (int i = 0; i < population.length; i++) {
+            List<Integer> randoms = new ArrayList<>();
             for (int j = 0; j < numberOfStudents; j++) {
-                population[i][j] = getNextInt(numberOfStudents);
+                int random = 0;
+                do {
+                    random = getNextInt(numberOfStudents);
+                } while (randoms.contains(random));
+                randoms.add(random);
+                population[i][j] = random;
             }
         }
 
@@ -111,6 +122,18 @@ public class StableMatching {
         return random.nextInt(bound);
     }
 
+    private List<Integer> generateCongruentLinear(double a, double c, double m, int x, int size) {
+        List<Integer> randoms = new ArrayList<>();
+        double previous = x;
+        double xi;
+        for (int i = 0; i < size; i++) {
+            xi = ((a * previous) + c) % m;
+            randoms.add((int) xi);
+            previous = xi;
+        }
+        return randoms;
+    }
+
     /**
      * Executa calculo de aptidao
      * @param population matriz contendo a populacao
@@ -122,14 +145,14 @@ public class StableMatching {
             int matchSum = 0;
             for (int j = 0; j < numberOfStudents; j++) {
                 for (int k = 1; k < numberOfStudents; k++) {
-                    if (population[i][j] == charge.get(j)[k]) {
+                    if (population[i][j] + 1 == charge.get(j)[k]) {
                         matchSum += k;
                         break;
                     }
                 }
 
                 for (int k = 1; k < numberOfStudents; k++) {
-                    if (population[i][j] == charge.get(j + numberOfStudents)[k]) {
+                    if (population[i][j] + 1 == charge.get(j + numberOfStudents)[k]) {
                         matchSum += k;
                         break;
                     }
@@ -191,25 +214,25 @@ public class StableMatching {
         for (int i = 1; i < POPULATION_SIZE; i+=2) {
             int[] chromosome1 = tournament(population, numberOfStudents);
             int[] chromosome2 = tournament(population, numberOfStudents);
-            int[] child1 = new int[numberOfStudents + 1];
-            int[] child2 = new int[numberOfStudents + 2];
+            Integer[] child1 = new Integer[numberOfStudents + 1];
+            Integer[] child2 = new Integer[numberOfStudents + 1];
             int last = chromosome2[0];
             child1[0] = chromosome1[0];
             child2[0] = chromosome2[0];
 
             while (!contains(child1, last)) {
                 for (int j = 0; j < chromosome1.length; j++) {
-                    if (chromosome1[i] == last) {
-                        child1[i] = chromosome1[i];
-                        child2[i] = chromosome2[i];
-                        last = chromosome2[i];
+                    if (chromosome1[j] == last) {
+                        child1[j] = chromosome1[j];
+                        child2[j] = chromosome2[j];
+                        last = chromosome2[j];
                         break;
                     }
                 }
             }
 
             for (int j = 0; j < chromosome1.length; j++) {
-                if (child1[j] == 0 && child2[j] == 0) {
+                if (child1[j] == null && child2[j] == null) {
                     child1[j] = chromosome2[j];
                     child2[j] = chromosome1[j];
                 }
@@ -228,9 +251,9 @@ public class StableMatching {
      * @param element elemento a ser buscado
      * @return true se encontrar o elemento e false se nao encontrar o elemento
      */
-    private boolean contains(int[] array, int element) {
-        for (int j : array) {
-            if (j == element) {
+    private boolean contains(Integer[] array, int element) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != null && array[i] == element) {
                 return true;
             }
         }
@@ -244,10 +267,10 @@ public class StableMatching {
      * @return cromossomo com a melhor aptidao
      */
     private int[] tournament(int[][] population, int numberOfStudents) {
-        int chromosome1 = getNextInt(POPULATION_SIZE);
-        int chromosome2 = getNextInt(POPULATION_SIZE);
+        int chromosome1 = getNextInt(POPULATION_SIZE - 1);
+        int chromosome2 = getNextInt(POPULATION_SIZE - 1);
 
-        if (population[chromosome1][numberOfStudents + 1] < population[chromosome2][numberOfStudents + 1]) {
+        if (population[chromosome1][numberOfStudents] < population[chromosome2][numberOfStudents]) {
             return population[chromosome1];
         }
         return population[chromosome2];
@@ -261,9 +284,13 @@ public class StableMatching {
     public void mutation(int[][] population, int numberOfStudents) {
         int amount = getNextInt(MUTATION_AMOUNT) + 1;
         for (int i = 0; i < amount; i++) {
-            int individual = getNextInt(POPULATION_SIZE);
-            int position1 = getNextInt(numberOfStudents);
-            int position2 = getNextInt(numberOfStudents);
+            int individual = getNextInt(POPULATION_SIZE - 1);
+            int position1 = 0;
+            int position2 = 0;
+            do {
+               position1 = getNextInt(numberOfStudents);
+               position2 = getNextInt(numberOfStudents);
+            } while(position1 == position2);
             int aux = population[individual][position1];
             population[individual][position1] = population[individual][position2];
             population[individual][position2] = aux;
