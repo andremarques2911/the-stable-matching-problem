@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class StableMatching {
     private final int POPULATION_SIZE = 11;
-    private final int MUTATION_PERCENTAGE = 1;
+    private final int MUTATION_PERCENTAGE = 2;
     private final int MUTATION_AMOUNT = 8;
     private final int MAX_REPETITIONS = 6;
     private static int numberOfRepetitions = 0;
@@ -161,26 +161,6 @@ public class StableMatching {
             }
             population[i][numberOfStudents] = matchSum;
         }
-
-//        for (int i = 0; i < POPULATION_SIZE; i++) {
-//            int matchSum = 0;
-//            for (int j = 0; j < numberOfStudents; j++) {
-//                for (int k = 1; k < numberOfStudents; k++) {
-//                    if (population[i][j] + 1 == charge.get(j)[k]) {
-//                        matchSum += k;
-//                        break;
-//                    }
-//                }
-//
-//                for (int k = 1; k < numberOfStudents; k++) {
-//                    if (population[i][j] + 1 == charge.get(j + numberOfStudents)[k]) {
-//                        matchSum += k;
-//                        break;
-//                    }
-//                }
-//            }
-//            population[i][numberOfStudents] = matchSum;
-//        }
     }
 
     private int findPreference(int[] preferences, int e) {
@@ -230,6 +210,7 @@ public class StableMatching {
             numberOfRepetitions++;
             if (numberOfRepetitions == MAX_REPETITIONS) {
                 System.out.println("Parada na geracao " + g + " por numero de repeticoes.");
+                printSolution(best, population, numberOfStudents);
                 return true;
             }
         } else {
@@ -238,10 +219,29 @@ public class StableMatching {
 
         if(population[best][numberOfStudents] == 0) {
             System.out.println("\nAchou a solucao otima na geracao " + g + ". Ela corresponde ao cromossomo: " + best);
+            printSolution(best, population, numberOfStudents);
             return true;
         }
 
         return false;
+    }
+
+    private void printSolution(int best, Integer[][] population, int numberOfStudents) {
+        System.out.print("Solucao codificada: ");
+        System.out.print("[");
+        for (int i = 0; i <= numberOfStudents; i++) {
+            if (i == numberOfStudents) {
+                System.out.print(population[best][i] + "]");
+                break;
+            }
+            System.out.print(population[best][i] + ", ");
+        }
+        System.out.print("\nSua aptidao eh: " + population[best][numberOfStudents]);
+        System.out.println("\n");
+        System.out.println("Solucao decodificada: ");
+        for (int i = 0; i < numberOfStudents; i++){
+            System.out.println("Aluno M" + (i + 1) + " com Aluno N" + (population[best][i] + 1));
+        }
     }
 
     /**
@@ -334,7 +334,7 @@ public class StableMatching {
             do {
                position1 = getNextInt(numberOfStudents);
                position2 = getNextInt(numberOfStudents);
-            } while(position1 == position2);
+            } while(position1 == position2 || position1 == 0 || position2 == 0);
             int aux = population[individual][position1];
             population[individual][position1] = population[individual][position2];
             population[individual][position2] = aux;
