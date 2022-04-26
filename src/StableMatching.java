@@ -88,6 +88,7 @@ public class StableMatching {
         file.remove(0);
 
         return file.stream()
+                .filter(line -> !line.isBlank())
                 .map(line -> {
                     String[] preferences = line.split(" ");
                     return Arrays.stream(preferences).mapToInt(Integer::parseInt).toArray();
