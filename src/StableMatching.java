@@ -7,22 +7,22 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class StableMatching {
-    private final int POPULATION_SIZE = 19;
-    private final int MUTATION_PERCENTAGE = 1;
-    private final int MUTATION_AMOUNT = 10;
+    private final int POPULATION_SIZE = 11;
+    private final int MUTATION_PERCENTAGE = 3;
+    private final int MUTATION_AMOUNT = 4;
 
     /**
      * Executa a logica inteira do algoritmo genetico
      */
     public void execute() {
-        List<String> file = readFile("./src/pares10.txt");
+        List<String> file = readFile("./src/carga.txt");
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
         int[][] population = generatePopulation(numberOfStudents);
         int[][] intermediary = new int[POPULATION_SIZE][numberOfStudents + 1];
 
-        for (int g = 0; g < 4; g++) {
+        for (int g = 0; g < 5; g++) {
             System.out.println("=============================================================================");
             System.out.println("Geracao:" + g);
 
@@ -211,7 +211,7 @@ public class StableMatching {
      * @param numberOfStudents numero de estudantes
      */
     private void crossover(int[][] population, int[][] intermediary, int numberOfStudents) {
-        for (int i = 1; i < POPULATION_SIZE; i+=2) {
+        for (int i = 1; i < POPULATION_SIZE; i += 2) {
             int[] chromosome1 = tournament(population, numberOfStudents);
             int[] chromosome2 = tournament(population, numberOfStudents);
             Integer[] child1 = new Integer[numberOfStudents + 1];
@@ -232,7 +232,7 @@ public class StableMatching {
             }
 
             for (int j = 0; j < chromosome1.length; j++) {
-                if (child1[j] == null && child2[j] == null) {
+                if (child1[j] == null || child2[j] == null) {
                     child1[j] = chromosome2[j];
                     child2[j] = chromosome1[j];
                 }
@@ -240,7 +240,8 @@ public class StableMatching {
 
             for (int j = 0; j < numberOfStudents + 1; j++) {
                 intermediary[i][j] = child1[j];
-                intermediary[i + 1][j] = child2[j];
+                if (i+1 < POPULATION_SIZE)
+                    intermediary[i + 1][j] = child2[j];
             }
         }
     }
