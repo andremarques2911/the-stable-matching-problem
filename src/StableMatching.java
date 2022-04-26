@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class StableMatching {
     private final int POPULATION_SIZE = 11;
-    private final int MUTATION_PERCENTAGE = 2;
+    private final int MUTATION_PERCENTAGE = 5;
     private final int MUTATION_AMOUNT = 4;
 
     /**
@@ -22,26 +22,28 @@ public class StableMatching {
         int[][] population = generatePopulation(numberOfStudents);
         int[][] intermediary = new int[POPULATION_SIZE][numberOfStudents + 1];
 
-        for (int g = 0; g < 5; g++) {
+        for (int g = 0; g < 2; g++) {
             System.out.println("=============================================================================");
             System.out.println("Geracao:" + g);
 
-            print(population, numberOfStudents + 1, "Inicio: ");
+//            print(population, numberOfStudents + 1, "Inicio: ");
 
             aptitude(population, charge, numberOfStudents);
-            print(population, numberOfStudents + 1, "Aptidao: ");
+//            print(population, numberOfStudents + 1, "Aptidao: ");
 
             int best = getBest(population, intermediary, numberOfStudents);
-            print(population, numberOfStudents + 1, "Eletismo: ");
+//            print(population, numberOfStudents + 1, "Eletismo: ");
 
             if (foundSolution(best, population, numberOfStudents)) break;
 
+            print(population, numberOfStudents + 1, "Antes: ");
             crossover(population, intermediary, numberOfStudents);
+            print(population, numberOfStudents + 1, "Depois: ");
             population = intermediary;
 
             if (getNextInt(MUTATION_PERCENTAGE) == 0) {
                 mutation(population, numberOfStudents);
-                print(population, numberOfStudents + 1, "Mutacao: ");
+//                print(population, numberOfStudents + 1, "Mutacao: ");
             }
             System.out.println("=============================================================================");
             System.out.println("\n\n");
@@ -209,7 +211,7 @@ public class StableMatching {
             child2[0] = chromosome2[0];
 
             while (!contains(child1, last)) {
-                for (int j = 0; j < chromosome1.length; j++) {
+                for (int j = 0; j < chromosome1.length - 1; j++) {
                     if (chromosome1[j] == last) {
                         child1[j] = chromosome1[j];
                         child2[j] = chromosome2[j];
@@ -219,18 +221,21 @@ public class StableMatching {
                 }
             }
 
-            for (int j = 0; j < chromosome1.length; j++) {
+            for (int j = 0; j < chromosome1.length - 1; j++) {
                 if (child1[j] == null || child2[j] == null) {
                     child1[j] = chromosome2[j];
                     child2[j] = chromosome1[j];
                 }
             }
 
-            for (int j = 0; j < numberOfStudents + 1; j++) {
+            for (int j = 0; j < numberOfStudents; j++) {
                 intermediary[i][j] = child1[j];
-                if (i+1 < POPULATION_SIZE)
+                if (i + 1 < POPULATION_SIZE)
                     intermediary[i + 1][j] = child2[j];
             }
+        }
+        for (int i = 0; i < POPULATION_SIZE; i++) {
+            intermediary[i][numberOfStudents] = 0;
         }
     }
 
