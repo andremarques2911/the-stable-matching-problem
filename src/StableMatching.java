@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 
 public class StableMatching {
     private final int POPULATION_SIZE = 11;
-    private final int MUTATION_PERCENTAGE = 3;
+    private final int MUTATION_PERCENTAGE = 2;
     private final int MUTATION_AMOUNT = 4;
 
     /**
      * Executa a logica inteira do algoritmo genetico
      */
     public void execute() {
-        List<String> file = readFile("./src/carga.txt");
+        List<String> file = readFile("./src/pares10.txt");
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
@@ -29,10 +29,10 @@ public class StableMatching {
             print(population, numberOfStudents + 1, "Inicio: ");
 
             aptitude(population, charge, numberOfStudents);
-//            print(population, numberOfStudents + 1, "Aptidao: ");
+            print(population, numberOfStudents + 1, "Aptidao: ");
 
             int best = getBest(population, intermediary, numberOfStudents);
-//            print(population, numberOfStudents + 1, "Eletismo: ");
+            print(population, numberOfStudents + 1, "Eletismo: ");
 
             if (foundSolution(best, population, numberOfStudents)) break;
 
@@ -41,10 +41,10 @@ public class StableMatching {
 
             if (getNextInt(MUTATION_PERCENTAGE) == 0) {
                 mutation(population, numberOfStudents);
-//                print(population, numberOfStudents + 1, "Mutacao: ");
+                print(population, numberOfStudents + 1, "Mutacao: ");
             }
             System.out.println("=============================================================================");
-            System.out.println("\n\n\n");
+            System.out.println("\n\n");
         }
     }
 
@@ -122,18 +122,6 @@ public class StableMatching {
         return random.nextInt(bound);
     }
 
-    private List<Integer> generateCongruentLinear(double a, double c, double m, int x, int size) {
-        List<Integer> randoms = new ArrayList<>();
-        double previous = x;
-        double xi;
-        for (int i = 0; i < size; i++) {
-            xi = ((a * previous) + c) % m;
-            randoms.add((int) xi);
-            previous = xi;
-        }
-        return randoms;
-    }
-
     /**
      * Executa calculo de aptidao
      * @param population matriz contendo a populacao
@@ -196,7 +184,7 @@ public class StableMatching {
      * @return true se a aptidao for igual a 0 e false se nao for
      */
     private boolean foundSolution(int best, int[][] population, int numberOfStudents) {
-        if (population[best][numberOfStudents] == 0) {
+        if (population[best][numberOfStudents] == 2 * numberOfStudents) {
             System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo: " + best);
             return true;
         }
