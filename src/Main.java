@@ -2,7 +2,7 @@ public class Main {
 
     public static void main(String[] args) {
         StableMatching stableMatching = new StableMatching();
-        stableMatching.execute();
+        stableMatching.execute(args[0]);
     }
 
 }

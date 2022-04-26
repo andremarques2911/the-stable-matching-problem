@@ -16,8 +16,8 @@ public class StableMatching {
     /**
      * Executa a logica inteira do algoritmo genetico
      */
-    public void execute() {
-        List<String> file = readFile("./src/tests/carga.txt");
+    public void execute(String path) {
+        List<String> file = readFile(path);
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
