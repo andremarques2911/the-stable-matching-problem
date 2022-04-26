@@ -10,7 +10,7 @@ public class StableMatching {
     private final int MUTATION_EXECUTION_PERCENTAGE = 2;
     private final int MAX_REPETITIONS = 8;
 
-    private final double CHROMOSOME_PERCENTAGE = 0.3;
+    private final double POSITIONS_CHROMOSOME_PERCENTAGE = 0.3;
     private int numberOfRepetitions = 0;
 
     /**
@@ -253,8 +253,8 @@ public class StableMatching {
             Integer[] child2 = new Integer[numberOfStudents + 1];
             List<Integer> selectedIndexes = new ArrayList<>();
             Integer index = null;
-            int maxChromosomes = Math.min((int) Math.ceil(numberOfStudents * CHROMOSOME_PERCENTAGE + 1), numberOfStudents);
-            for (int j = 0; j < maxChromosomes; j++) {
+            int maxPositionsChromosome = Math.min((int) Math.ceil(numberOfStudents * POSITIONS_CHROMOSOME_PERCENTAGE + 1), numberOfStudents);
+            for (int j = 0; j < maxPositionsChromosome; j++) {
                 do {
                     index = getNextInt(numberOfStudents);
                 } while (selectedIndexes.contains(index));
