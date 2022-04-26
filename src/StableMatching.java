@@ -8,10 +8,11 @@ import java.util.stream.Collectors;
 
 public class StableMatching {
     private final int POPULATION_SIZE = 11;
-    private final int MUTATION_PERCENTAGE = 2;
-    private final int MUTATION_AMOUNT = 8;
-    private final int MAX_REPETITIONS = 6;
-    private static int numberOfRepetitions = 0;
+    private final double MUTATION_PERCENTAGE = 0.2;
+    private final int MUTATION_AMOUNT = (int) Math.ceil(POPULATION_SIZE * MUTATION_PERCENTAGE);
+    private final int MUTATION_EXECUTION_PERCENTAGE = 2;
+    private final int MAX_REPETITIONS = 8;
+    private int numberOfRepetitions = 0;
 
     /**
      * Executa a logica inteira do algoritmo genetico
@@ -46,7 +47,7 @@ public class StableMatching {
             population = intermediary;
             print(population, numberOfStudents + 1, "Crossover: ");
 
-            if (getNextInt(MUTATION_PERCENTAGE) == 0) {
+            if (getNextInt(MUTATION_EXECUTION_PERCENTAGE) == 0) {
                 mutation(population, numberOfStudents);
                 print(population, numberOfStudents + 1, "Mutacao: ");
             }
