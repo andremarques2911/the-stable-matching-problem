@@ -1,9 +1,6 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StableMatching {
@@ -12,6 +9,8 @@ public class StableMatching {
     private final int MUTATION_AMOUNT = (int) Math.ceil(POPULATION_SIZE * MUTATION_PERCENTAGE);
     private final int MUTATION_EXECUTION_PERCENTAGE = 2;
     private final int MAX_REPETITIONS = 8;
+
+    private final double CHROMOSOME_PERCENTAGE = 0.3;
     private int numberOfRepetitions = 0;
 
     /**
@@ -43,7 +42,7 @@ public class StableMatching {
 
             if (foundSolution(best, lastBest, g, population, numberOfStudents)) break;
 
-            crossover(population, intermediary, numberOfStudents);
+            crossoverPBX(population, intermediary, numberOfStudents);
             population = intermediary;
             print(population, numberOfStudents + 1, "Crossover: ");
 
@@ -211,7 +210,7 @@ public class StableMatching {
         if (best == lastBest) {
             numberOfRepetitions++;
             if (numberOfRepetitions == MAX_REPETITIONS) {
-                System.out.println("Parada na geracao " + g + " por numero de repeticoes.");
+                System.out.println("\nParada na geracao " + g + " por numero de repeticoes.");
                 printSolution(best, population, numberOfStudents);
                 return true;
             }
@@ -242,7 +241,56 @@ public class StableMatching {
         System.out.println("\n");
         System.out.println("Solucao decodificada: ");
         for (int i = 0; i < numberOfStudents; i++){
-            System.out.println("Aluno M" + (i + 1) + " com Aluno N" + (population[best][i] + 1));
+            System.out.println("[M" + (i + 1) + ", N" + (population[best][i] + 1) + "]");
+        }
+    }
+
+    private void crossoverPBX(Integer[][] population, Integer[][] intermediary, int numberOfStudents) {
+        for (int i = 1; i < POPULATION_SIZE; i += 2) {
+            Integer[] chromosome1 = tournament(population, numberOfStudents);
+            Integer[] chromosome2 = tournament(population, numberOfStudents);
+            Integer[] child1 = new Integer[numberOfStudents + 1];
+            Integer[] child2 = new Integer[numberOfStudents + 1];
+            List<Integer> selectedIndexes = new ArrayList<>();
+            Integer index = null;
+            int maxChromosomes = Math.min((int) Math.ceil(numberOfStudents * CHROMOSOME_PERCENTAGE + 1), numberOfStudents);
+            for (int j = 0; j < maxChromosomes; j++) {
+                do {
+                    index = getNextInt(numberOfStudents);
+                } while (selectedIndexes.contains(index));
+                selectedIndexes.add(index);
+            }
+
+            selectedIndexes.forEach(j -> {
+                child1[j] = chromosome2[j];
+                child2[j] = chromosome1[j];
+            });
+
+            List<Integer> restElementsChromosome1 = new ArrayList<>();
+            List<Integer> restElementsChromosome2 = new ArrayList<>();
+            for (int j = 0; j < numberOfStudents; j++) {
+                if (!contains(child1, chromosome1[j])) {
+                    restElementsChromosome1.add(chromosome1[j]);
+                }
+                if (!contains(child2, chromosome2[j])) {
+                    restElementsChromosome2.add(chromosome2[j]);
+                }
+            }
+            for (int j = 0; j < numberOfStudents; j++) {
+                if (child1[j] == null) {
+                    child1[j] = restElementsChromosome1.get(0);
+                    restElementsChromosome1.remove(0);
+                }
+                if (child2[j] == null) {
+                    child2[j] = restElementsChromosome2.get(0);
+                    restElementsChromosome2.remove(0);
+                }
+            }
+
+            for (int j = 0; j < numberOfStudents; j++) {
+                intermediary[i][j] = child1[j];
+                intermediary[i + 1][j] = child2[j];
+            }
         }
     }
 
@@ -252,7 +300,7 @@ public class StableMatching {
      * @param intermediary matriz intermediaria que sera atualizada
      * @param numberOfStudents numero de estudantes
      */
-    private void crossover(Integer[][] population, Integer[][] intermediary, int numberOfStudents) {
+    private void crossoverCX(Integer[][] population, Integer[][] intermediary, int numberOfStudents) {
         for (int i = 1; i < POPULATION_SIZE; i += 2) {
             Integer[] chromosome1 = tournament(population, numberOfStudents);
             Integer[] chromosome2 = tournament(population, numberOfStudents);
@@ -313,9 +361,15 @@ public class StableMatching {
      * @return cromossomo com a melhor aptidao
      */
     private Integer[] tournament(Integer[][] population, int numberOfStudents) {
-        int chromosome1 = getNextInt(POPULATION_SIZE - 1);
-        int chromosome2 = getNextInt(POPULATION_SIZE - 1);
+        Integer chromosome1 = null;
+        Integer chromosome2 = null;
 
+        do {
+            chromosome1 = getNextInt(POPULATION_SIZE - 1);
+            chromosome2 = getNextInt(POPULATION_SIZE - 1);
+        } while (chromosome1.equals(chromosome2));
+
+        System.out.println("Torneio entre cromossomos " + chromosome1 + " e " + chromosome2 + " com aptidoes " + population[chromosome1][numberOfStudents] + " e " + population[chromosome2][numberOfStudents]);
         if (population[chromosome1][numberOfStudents] < population[chromosome2][numberOfStudents]) {
             return population[chromosome1];
         }
