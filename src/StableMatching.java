@@ -18,7 +18,7 @@ public class StableMatching {
      * Executa a logica inteira do algoritmo genetico
      */
     public void execute(String path) {
-        List<String> file = readFile("./src/tests/carga.txt");
+        List<String> file = readFile(path);
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
@@ -43,7 +43,7 @@ public class StableMatching {
 
             if (foundSolution(best, lastBest, g, population, numberOfStudents)) break;
 
-            crossoverPBX(population, intermediary, numberOfStudents);
+            crossoverCX(population, intermediary, numberOfStudents);
             population = intermediary;
             print(population, numberOfStudents + 1, "Crossover: ");
 
@@ -225,7 +225,7 @@ public class StableMatching {
         }
 
         if (g == MAX_GENERATIONS - 1) {
-            System.out.println("\nPrograma parado na geracao " + g + " por chegar ao numero  repeticoes maximo.");
+            System.out.println("\nPrograma parado na geracao " + g + " por chegar ao numero de geracoes maximo.");
             printSolution(best, population, numberOfStudents);
             return true;
         }
