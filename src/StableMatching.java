@@ -4,11 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class StableMatching {
-    private final int POPULATION_SIZE = 11;
-    private final double MUTATION_PERCENTAGE = 0.2;
+    private final int POPULATION_SIZE = 100;
+    private final double MUTATION_PERCENTAGE = 0.8;
     private final int MUTATION_AMOUNT = (int) Math.ceil(POPULATION_SIZE * MUTATION_PERCENTAGE);
-    private final int MUTATION_EXECUTION_PERCENTAGE = 2;
-    private final int MAX_REPETITIONS = 8;
+    private final int MUTATION_EXECUTION_PERCENTAGE = 1;
+    private final int MAX_REPETITIONS = 10;
+    private final int MAX_GENERATIONS = 200;
 
     private final double POSITIONS_CHROMOSOME_PERCENTAGE = 0.3;
     private int numberOfRepetitions = 0;
@@ -17,7 +18,7 @@ public class StableMatching {
      * Executa a logica inteira do algoritmo genetico
      */
     public void execute(String path) {
-        List<String> file = readFile(path);
+        List<String> file = readFile("./src/tests/carga.txt");
         if (file == null) return;
         int numberOfStudents = getNumberOfStudents(file);
         List<int[]> charge = getCharge(file);
@@ -28,13 +29,13 @@ public class StableMatching {
         int lastBest = 0;
         int best = 0;
 
-        for (int g = 0; g < 200; g++) {
+        for (int g = 0; g < MAX_GENERATIONS; g++) {
             System.out.println("=============================================================================");
             System.out.println("Geracao:" + g);
 
             print(population, numberOfStudents + 1, "Inicio: ");
 
-            aptitude(population, aPreferences, bPreferences, charge, numberOfStudents);
+            aptitude(population, aPreferences, bPreferences, numberOfStudents);
             print(population, numberOfStudents + 1, "Aptidao: ");
 
             best = getBest(population, intermediary, numberOfStudents);
@@ -147,17 +148,16 @@ public class StableMatching {
     /**
      * Executa calculo de aptidao
      * @param population matriz contendo a populacao
-     * @param charge lista com dados do arquivo de entrada
      * @param numberOfStudents numero de estudantes
      */
-    private void aptitude(Integer[][] population, List<int[]> aPreferences, List<int[]> bPreferences, List<int[]> charge, int numberOfStudents) {
+    private void aptitude(Integer[][] population, List<int[]> aPreferences, List<int[]> bPreferences, int numberOfStudents) {
         for (int i = 0; i < POPULATION_SIZE; i++) {
             int matchSum = 0;
             for (int j = 0; j < numberOfStudents; j++) {
                 int preference = findPreference(aPreferences.get(j), population[i][j]);
                 matchSum += preference;
 
-                preference = findPreference(bPreferences.get(j), population[i][j]);
+                preference = findPreference(bPreferences.get(population[i][j]), j);
                 matchSum += preference;
             }
             population[i][numberOfStudents] = matchSum;
@@ -210,7 +210,7 @@ public class StableMatching {
         if (best == lastBest) {
             numberOfRepetitions++;
             if (numberOfRepetitions == MAX_REPETITIONS) {
-                System.out.println("\nParada na geracao " + g + " por numero de repeticoes.");
+                System.out.println("\nPrograma parado na geracao " + g + " por numero de repeticoes.");
                 printSolution(best, population, numberOfStudents);
                 return true;
             }
@@ -218,8 +218,14 @@ public class StableMatching {
             numberOfRepetitions = 0;
         }
 
-        if(population[best][numberOfStudents] == 0) {
+        if (population[best][numberOfStudents] == 0) {
             System.out.println("\nAchou a solucao otima na geracao " + g + ". Ela corresponde ao cromossomo: " + best);
+            printSolution(best, population, numberOfStudents);
+            return true;
+        }
+
+        if (g == MAX_GENERATIONS - 1) {
+            System.out.println("\nPrograma parado na geracao " + g + " por chegar ao numero  repeticoes maximo.");
             printSolution(best, population, numberOfStudents);
             return true;
         }
@@ -289,7 +295,8 @@ public class StableMatching {
 
             for (int j = 0; j < numberOfStudents; j++) {
                 intermediary[i][j] = child1[j];
-                intermediary[i + 1][j] = child2[j];
+                if (i + 1 < POPULATION_SIZE)
+                    intermediary[i + 1][j] = child2[j];
             }
         }
     }
